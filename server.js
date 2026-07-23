@@ -5,6 +5,7 @@ const cors = require("cors");
 const authRouter = require("./routes/authRoutes");
 const expenseRouter = require("./routes/expenseRoutes");
 const categoryRouter = require("./routes/categoryRoutes");
+const dashboardRouter = require("./routes/dashboardRoutes");
 const app = express();
 const PORT = process.env.PORT || 5001;
 
@@ -29,6 +30,8 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRouter);
 app.use("/api/expense", expenseRouter);
 app.use("/api/category", categoryRouter);
+app.use("/api/dashboard", dashboardRouter);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
