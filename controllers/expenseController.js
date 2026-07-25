@@ -60,10 +60,10 @@ const updateExpenseHandler = async (req, res) => {
 const getExpenseHandler = async (req, res) => {
   const userId = req.user.userId;
   try {
-    const { type, date } = req.query;
+    const { type, month } = req.query;
     const expense = await getExpense(userId, {
       type,
-      month: date,
+      month,
     });
     res
       .status(200)
