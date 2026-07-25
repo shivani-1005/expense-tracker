@@ -36,7 +36,12 @@ const getExpense = async (userId, filters = {}) => {
 
   return await prisma.expense.findMany({
     where,
-    orderBy: { date: "desc" }, // newest first
+    orderBy: { date: "desc" },
+    include: {
+      category: {
+        select: { name: true, color: true },
+      },
+    },
   });
 };
 

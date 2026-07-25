@@ -44,6 +44,11 @@ const getDashboardData = async (userId, month) => {
     orderBy: {
       date: "desc",
     },
+    include: {
+      category: {
+        select: { name: true, color: true },
+      },
+    },
     take: 5,
   });
 
