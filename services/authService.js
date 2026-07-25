@@ -16,7 +16,6 @@ const registerUser = async (name, email, password) => {
   const { password: _, ...userWithoutPassword } = user;
   return userWithoutPassword;
 };
-
 const login = async (email, password) => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -30,7 +29,42 @@ const login = async (email, password) => {
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
-  return token;
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    },
+  };
 };
 
-module.exports = { registerUser, login };
+const updateProfile = async (userId, data) => {
+  const { name, currentPassword, newPassword } = data;
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  const updateData = {};
+
+  // if name provided, update it
+  if (name) {
+    updateData.name = name;
+  }
+
+  // if password change requested
+  if (currentPassword && newPassword) {
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) throw new Error("Current password is incorrect");
+    updateData.password = await bcrypt.hash(newPassword, 10);
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: { id: true, name: true, email: true, createdAt: true },
+  });
+
+  return updated;
+};
+module.exports = { registerUser, login, updateProfile };

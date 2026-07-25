@@ -1,4 +1,8 @@
-const { login, registerUser } = require("../services/authService");
+const {
+  login,
+  registerUser,
+  updateProfile,
+} = require("../services/authService");
 
 const registerHandler = async (req, res) => {
   try {
@@ -29,10 +33,42 @@ const loginHandler = async (req, res) => {
     }
 
     const token = await login(email, password);
-    res.status(200).json({ success: true, message: "Login successful", token });
+    const user = await getUserByEmail(email);
+    res
+      .status(200)
+      .json({ success: true, message: "Login successful", token, user });
   } catch (error) {
     res.status(401).json({ success: false, error: error.message });
   }
 };
 
-module.exports = { registerHandler, loginHandler };
+const updateProfileHandler = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { name, currentPassword, newPassword } = req.body;
+
+    if (!name && !currentPassword && !newPassword) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Nothing to update" });
+    }
+    const result = await updateProfile(userId, {
+      name,
+      currentPassword,
+      newPassword,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    if (error.message === "Current password is incorrect") {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+    res.status(500).json({ success: false, error: "Something went wrong" });
+  }
+};
+
+module.exports = { registerHandler, loginHandler, updateProfileHandler };
