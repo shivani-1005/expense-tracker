@@ -10,12 +10,21 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 //Allow cross-origin requests from frontend, should come before express.json
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:3000",
+//       "https://expense-tracker-pearl-kappa-83.vercel.app",
+//     ],
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   }),
+// );
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://expense-tracker-pearl-kappa-83.vercel.app/",
-    ],
+    origin: function (origin, callback) {
+      callback(null, true); // allow all origins temporarily
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
