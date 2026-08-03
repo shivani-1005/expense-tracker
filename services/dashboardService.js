@@ -1,12 +1,11 @@
 const prisma = require("../lib/prisma");
+const { getMonthDateRange } = require("../lib/dateRange");
 
 const getDashboardData = async (userId, month) => {
   const where = { userId };
 
   if (month) {
-    const startDate = new Date(`${month}-01`);
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 1);
+    const { startDate, endDate } = getMonthDateRange(month);
 
     where.date = {
       gte: startDate,
@@ -42,11 +41,11 @@ const getDashboardData = async (userId, month) => {
   const recentTransactions = await prisma.expense.findMany({
     where,
     orderBy: {
-      date: "desc",
+      createdAt: "desc",
     },
     include: {
       category: {
-        select: { name: true, color: true },
+        select: { name: true },
       },
     },
     take: 5,

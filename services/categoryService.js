@@ -1,21 +1,26 @@
 const prisma = require("../lib/prisma");
 
-const createCategory = async (name, color) => {
-  const category = await prisma.category.create({ data: { name, color } });
+const createCategory = async (userId, name) => {
+  const category = await prisma.category.create({
+    data: { userId, name },
+  });
   return category;
 };
 
-const getCategories = async () => {
-  const categories = await prisma.category.findMany();
+const getCategories = async (userId) => {
+  const categories = await prisma.category.findMany({ where: { userId } });
   return categories;
 };
 
-const updateCategory = async (id, data) => {
-  const category = await prisma.category.update({ where: { id }, data });
+const updateCategory = async (id, userId, data) => {
+  const category = await prisma.category.update({
+    where: { id, userId },
+    data,
+  });
   return category;
 };
-const deleteCategory = async (id) => {
-  const category = await prisma.category.delete({ where: { id } });
+const deleteCategory = async (id, userId) => {
+  const category = await prisma.category.delete({ where: { id, userId } });
   return category;
 };
 

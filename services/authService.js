@@ -40,6 +40,17 @@ const login = async (email, password) => {
   };
 };
 
+const getCurrentUser = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, email: true },
+  });
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};
+
 const updateProfile = async (userId, data) => {
   const { name, currentPassword, newPassword } = data;
 
@@ -67,4 +78,4 @@ const updateProfile = async (userId, data) => {
 
   return updated;
 };
-module.exports = { registerUser, login, updateProfile };
+module.exports = { registerUser, login, updateProfile, getCurrentUser };

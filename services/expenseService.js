@@ -1,4 +1,5 @@
 const prisma = require("../lib/prisma");
+const { getMonthDateRange } = require("../lib/dateRange");
 
 const createExpense = async (userId, categoryId, amount, type, note, date) => {
   const expense = await prisma.expense.create({
@@ -13,18 +14,11 @@ const getExpense = async (userId, filters = {}) => {
 
   // if month filter exists, add date range
   if (filters.month) {
-    // create start and end date from filters.month
-    // add to where clause
-    const startDate = new Date(`${filters.month}-01`);
-    const endDate = new Date(
-      startDate.getFullYear(),
-      startDate.getMonth() + 1,
-      0,
-    );
+    const { startDate, endDate } = getMonthDateRange(filters.month);
 
     where.date = {
       gte: startDate,
-      lte: endDate,
+      lt: endDate,
     };
   }
 
@@ -36,10 +30,10 @@ const getExpense = async (userId, filters = {}) => {
 
   return await prisma.expense.findMany({
     where,
-    orderBy: { date: "desc" },
+    orderBy: { createdAt: "desc" },
     include: {
       category: {
-        select: { name: true, color: true },
+        select: { name: true },
       },
     },
   });
@@ -56,9 +50,3 @@ const deleteExpense = async (id, userId) => {
 };
 
 module.exports = { createExpense, getExpense, updateExpense, deleteExpense };
-
-// more accurate
-// const deleteExpense = async (id, userId) => {
-//   const where = { id, userId };
-//   return await prisma.expense.delete({ where });
-// };

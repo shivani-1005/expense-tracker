@@ -4,3 +4,5 @@ node_modules
 .claude
 .windsurf
 prisma.config.ts
+generated/
+.DS_Store

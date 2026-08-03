@@ -2,16 +2,13 @@ const {
   login,
   registerUser,
   updateProfile,
+  getCurrentUser,
 } = require("../services/authService");
+const { authCookieOptions } = require("../lib/authCookie");
 
 const registerHandler = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "name,email,password are required" });
-    }
     const user = await registerUser(name, email, password);
     res.status(201).json({ success: true, user, message: "User Registered" });
   } catch (error) {
@@ -20,7 +17,7 @@ const registerHandler = async (req, res) => {
     }
     res.status(500).json({
       success: false,
-      error: "Somethnig went wrong",
+      error: "Something went wrong",
     });
   }
 };
@@ -28,16 +25,27 @@ const registerHandler = async (req, res) => {
 const loginHandler = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
-
     const { token, user } = await login(email, password);
+    res.cookie("token", token, authCookieOptions);
     res
       .status(200)
-      .json({ success: true, message: "Login successful", token, user });
+      .json({ success: true, message: "Login successful", user });
   } catch (error) {
     res.status(401).json({ success: false, error: error.message });
+  }
+};
+
+const logoutHandler = (req, res) => {
+  res.clearCookie("token", authCookieOptions);
+  res.status(200).json({ success: true, message: "Logged out" });
+};
+
+const meHandler = async (req, res) => {
+  try {
+    const user = await getCurrentUser(req.user.userId);
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(401).json({ success: false, error: "Not authorized" });
   }
 };
 
@@ -45,12 +53,6 @@ const updateProfileHandler = async (req, res) => {
   try {
     const userId = req.user.userId;
     const { name, currentPassword, newPassword } = req.body;
-
-    if (!name && !currentPassword && !newPassword) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Nothing to update" });
-    }
     const result = await updateProfile(userId, {
       name,
       currentPassword,
@@ -70,4 +72,10 @@ const updateProfileHandler = async (req, res) => {
   }
 };
 
-module.exports = { registerHandler, loginHandler, updateProfileHandler };
+module.exports = {
+  registerHandler,
+  loginHandler,
+  updateProfileHandler,
+  logoutHandler,
+  meHandler,
+};

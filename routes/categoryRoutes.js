@@ -7,10 +7,17 @@ const {
   deleteCategoryHandler,
 } = require("../controllers/categoryController");
 const { protect } = require("../middleware/authMiddleware");
+const { validate } = require("../middleware/validate");
+const { categorySchema } = require("../validators/categoryValidators");
 
 router.get("/", protect, getCategoriesHandler);
-router.post("/", protect, createCategoryHandler);
-router.put("/:id", protect, updateCategoryHandler);
+router.post("/", protect, validate(categorySchema), createCategoryHandler);
+router.put(
+  "/:id",
+  protect,
+  validate(categorySchema.partial()),
+  updateCategoryHandler,
+);
 router.delete("/:id", protect, deleteCategoryHandler);
 
 module.exports = router;

@@ -21,6 +21,7 @@ model User {
   profilePhoto String?
   createdAt DateTime @default(now())
   expenses Expense[]
+  categories Category[]
 }
 
 
@@ -44,8 +45,9 @@ model Expense {
 
 model Category {
   id             Int @id @default(autoincrement())
+  userId         Int
+  user           User @relation(fields: [userId], references: [id])
   name           String
-  color          String
   createdAt      DateTime @default(now())
   expenses      Expense[]
 }
